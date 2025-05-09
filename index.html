@@ -4,11 +4,9 @@
   <meta charset="UTF-8"/>
   <title>HamsterGrab Experiment</title>
 
-  <!-- Scratch VM dependencies in the correct order -->
-  <script src="https://unpkg.com/scratch-audio@1.17.0/dist/web.js"></script>
-  <script src="https://unpkg.com/scratch-storage@1.17.0/dist/web.js"></script>
-  <script src="https://unpkg.com/scratch-render@1.17.0/dist/web.js"></script>
+  <!-- UMD builds from unpkg -->
   <script src="https://unpkg.com/scratch-vm@1.17.0/dist/web.js"></script>
+  <script src="https://unpkg.com/scratch-render@1.17.0/dist/web.js"></script>
 
   <style>
     html, body { margin:0; height:100%; overflow:hidden; }
@@ -16,30 +14,29 @@
   </style>
 </head>
 <body>
-  <!-- This is where the game will render -->
+  <!-- sanity check -->
+  <h1 style="color:crimson; text-align:center;">🛠️ TEST PAGE LOADED!</h1>
+
+  <!-- where the game will go -->
   <div id="scratch-root"></div>
 
   <script>
-    // 1. Initialize the VM, renderer, storage & audio
-    const vm = new window.ScratchVM();
-    const renderer = new window.ScratchRender();
-    renderer.attachToDom(document.getElementById('scratch-root'));
-    vm.attachRenderer(renderer);
-    vm.attachStorage(new window.ScratchStorage());
-    vm.attachAudio(new window.ScratchAudio());
+    console.log('Initializing Scratch VM…');
 
-    // 2. Load and start your project
-    vm.loadProject('hamstergrab.sb3')
-      .then(() => vm.start())
-      .catch(e => console.error('Failed to load .sb3:', e));
+    try {
+      const vm = new window.ScratchVM();
+      const renderer = new window.ScratchRender();
 
-    // 3. Listen for the broadcast you set in Scratch
-    vm.runtime.on('TRIGGER_BROADCAST', name => {
-      if (name === 'GAME_OVER') {
-        // tell Gorilla the game’s done
-        parent.postMessage('HAMSTER_FINISHED', '*');
-      }
-    });
-  </script>
-</body>
-</html>
+      renderer.attachToDom(document.getElementById('scratch-root'));
+      vm.attachRenderer(renderer);
+
+      vm.loadProject('hamstergrab.sb3')
+        .then(() => {
+          console.log('Project loaded, starting VM…');
+          return vm.start();
+        })
+        .catch(e => console.error('Failed to load hamstergrab.sb3:', e));
+
+      vm.runtime.on('TRIGGER_BROADCAST', name => {
+        console.log('Broadcast received:', name);
+        if (name === 'GAME
