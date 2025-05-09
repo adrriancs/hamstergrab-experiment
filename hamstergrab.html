@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>HamsterGrab Experiment</title>
+  <!-- Scratch VM + renderer -->
+  <script src="https://cdn.jsdelivr.net/npm/scratch-vm@1.17.0/dist/scratch-vm.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/scratch-render@1.17.0/dist/scratch-render.min.js"></script>
+  <style>
+    /* fullscreen embed */
+    html, body { margin:0; height:100%; overflow:hidden; }
+    #scratch-root { width:100%; height:100%; }
+  </style>
+</head>
+<body>
+  <div id="scratch-root"></div>
+
+  <script>
+    // 1) Initialize the Scratch VM and renderer
+    const vm = new window.ScratchVM();
+    const renderer = new window.ScratchRender();
+    renderer.attachToDom(document.getElementById('scratch-root'));
+    vm.attachRenderer(renderer);
+
+    // 2) Load your .sb3 project (must be co-hosted next to this HTML)
+    vm.loadProject('hamstergrab.sb3')
+      .then(() => vm.start());
+
+    // 3) Listen for the Scratch “GAME_OVER” broadcast
+    vm.runtime.on('TRIGGER_BROADCAST', name => {
+      if (name === 'GAME_OVER') {
+        // Tell Gorilla the game’s done
+        parent.postMessage('HAMSTER_FINISHED', '*');
+      }
+    });
+  </script>
+</body>
+</html>
