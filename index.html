@@ -1,37 +1,42 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8"/>
   <title>HamsterGrab Experiment</title>
-  <!-- Scratch VM + renderer -->
-  <script src="https://cdn.jsdelivr.net/npm/scratch-vm@1.17.0/dist/scratch-vm.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/scratch-render@1.17.0/dist/scratch-render.min.js"></script>
+
+  <!-- Scratch VM dependencies in the correct order -->
+  <script src="https://unpkg.com/scratch-audio@1.17.0/dist/web.js"></script>
+  <script src="https://unpkg.com/scratch-storage@1.17.0/dist/web.js"></script>
+  <script src="https://unpkg.com/scratch-render@1.17.0/dist/web.js"></script>
+  <script src="https://unpkg.com/scratch-vm@1.17.0/dist/web.js"></script>
+
   <style>
     html, body { margin:0; height:100%; overflow:hidden; }
     #scratch-root { width:100%; height:100%; }
   </style>
 </head>
 <body>
-  <!-- 1) Your sanity‐check header, before anything else -->
-  <h1 style="color:red; text-align:center;">PAGE IS WORKING</h1>
-
-  <!-- 2) The container where the game will go -->
+  <!-- This is where the game will render -->
   <div id="scratch-root"></div>
 
-  <!-- 3) Your VM initialization script -->
   <script>
-    window.startTime = Date.now();
+    // 1. Initialize the VM, renderer, storage & audio
     const vm = new window.ScratchVM();
     const renderer = new window.ScratchRender();
     renderer.attachToDom(document.getElementById('scratch-root'));
     vm.attachRenderer(renderer);
+    vm.attachStorage(new window.ScratchStorage());
+    vm.attachAudio(new window.ScratchAudio());
 
+    // 2. Load and start your project
     vm.loadProject('hamstergrab.sb3')
       .then(() => vm.start())
-      .catch(e => console.error('Failed loading .sb3:', e));
+      .catch(e => console.error('Failed to load .sb3:', e));
 
+    // 3. Listen for the broadcast you set in Scratch
     vm.runtime.on('TRIGGER_BROADCAST', name => {
       if (name === 'GAME_OVER') {
+        // tell Gorilla the game’s done
         parent.postMessage('HAMSTER_FINISHED', '*');
       }
     });
